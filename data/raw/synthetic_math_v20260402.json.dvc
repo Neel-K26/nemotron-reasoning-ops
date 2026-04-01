@@ -1,0 +1,5 @@
+outs:
+- md5: f193066dedd2ad5712c9278981359193
+  size: 2686
+  hash: md5
+  path: synthetic_math_v20260402.json
