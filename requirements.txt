@@ -1,0 +1,26 @@
+# Core ML Stack
+torch==2.2.1
+torchvision==0.17.1
+torchaudio==2.2.1
+
+# Fine-tuning & Evaluation
+transformers>=4.38.0
+peft>=0.9.0
+datasets>=2.18.0
+accelerate>=0.27.2
+trl>=0.8.0
+bitsandbytes>=0.43.0
+
+# Kaggle/vLLM Evaluation Parity
+vllm>=0.4.0
+
+# Tracking & Ops
+mlflow>=2.11.0
+wandb>=0.16.4
+dvc[gs]>=3.48.0
+pydantic>=2.6.3
+pytest>=8.0.2
+
+# API Serving (Optional, for deploying the adapter later)
+fastapi>=0.110.0
+uvicorn>=0.27.1
