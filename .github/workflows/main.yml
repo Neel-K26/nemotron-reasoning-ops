@@ -1,0 +1,55 @@
+name: Validate Nemotron Adapter & Build Submission
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Adapter Directory Exists
+        run: |
+          if [ ! -d "outputs/final_adapter" ]; then
+            echo "❌ Error: final_adapter directory missing. Did the training loop complete?"
+            exit 1
+          fi
+
+      - name: Verify adapter_config.json Exists
+        run: |
+          if [ ! -f "outputs/final_adapter/adapter_config.json" ]; then
+            echo "❌ Error: adapter_config.json is missing!"
+            exit 1
+          fi
+
+      - name: Validate LoRA Rank Limit (Kaggle Rule: <= 32)
+        run: |
+          # Use jq to parse the JSON and extract the rank 'r'
+          RANK=$(jq -r '.r' outputs/final_adapter/adapter_config.json)
+          echo "🔍 Detected LoRA Rank: $RANK"
+          
+          if [ "$RANK" -gt 32 ]; then
+            echo "❌ CRITICAL: Rank $RANK exceeds Kaggle's maximum limit of 32!"
+            exit 1
+          fi
+          echo "✅ Adapter rank is Kaggle-compliant."
+
+      - name: Package submission.zip
+        run: |
+          cd outputs/final_adapter
+          # Package all adapter files into the Kaggle-required zip format
+          zip -r ../../submission.zip ./*
+          echo "📦 submission.zip successfully created."
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaggle-submission
+          path: submission.zip

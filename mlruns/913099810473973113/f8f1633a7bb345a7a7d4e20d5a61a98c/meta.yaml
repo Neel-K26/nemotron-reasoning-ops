@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Admin/Jupyter/nemotron-reasoning-ops/mlruns/913099810473973113/f8f1633a7bb345a7a7d4e20d5a61a98c/artifacts
+end_time: 1775071958989
+entry_point_name: ''
+experiment_id: '913099810473973113'
+lifecycle_stage: active
+run_id: f8f1633a7bb345a7a7d4e20d5a61a98c
+run_name: amusing-chimp-0
+run_uuid: f8f1633a7bb345a7a7d4e20d5a61a98c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1775071958614
+status: 3
+tags: []
+user_id: Admin
