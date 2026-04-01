@@ -120,24 +120,25 @@ nemotron-reasoning-ops/
 ├── Dockerfile              # NVIDIA CUDA 12.1 production container blueprint
 ├── requirements.txt        # Core ML and Ops dependencies
 └── config.yaml             # Global pipeline hyperparameters
-🧠 The GRPO Multi-Component Reward Function
-To excel in structured reasoning, models must be penalized for hallucinations and rewarded for strict formatting. Our custom GRPO reward function (src/evaluation/grpo_reward.py) applies a heavily shaped reward structure based on Kaggle's evaluation metric:
 
-Format Compliance (+0.1): Model successfully wraps its final answer using the LaTeX \boxed{answer} command.
+## 🧠 The GRPO Multi-Component Reward Function
 
-Exact/Numerical Correctness (+1.0): The extracted string exactly matches the ground truth, OR falls within Kaggle's strict relative numerical tolerance of 1e-5.
+To excel in structured reasoning, models must be penalized for hallucinations and rewarded for strict formatting. Our custom GRPO reward function (`src/evaluation/grpo_reward.py`) applies a heavily shaped reward structure based on Kaggle's evaluation metric:
 
-Hallucination Penalty (-0.5): Model confidently outputs a boxed answer, but the mathematics are incorrect.
+* **Format Compliance (+0.1):** Model successfully wraps its final answer using the LaTeX `\boxed{answer}` command.
+* **Exact/Numerical Correctness (+1.0):** The extracted string exactly matches the ground truth, OR falls within Kaggle's strict relative numerical tolerance of `1e-5`.
+* **Hallucination Penalty (-0.5):** Model confidently outputs a boxed answer, but the mathematics are incorrect.
+* **Missing Format Penalty (-1.0):** Model completely fails to use the `\boxed{}` syntax.
+* **Padding Penalty (-0.2):** Discourages the model from generating excessive tokens (length > 2000) to farm reasoning steps without reaching a conclusion.
 
-Missing Format Penalty (-1.0): Model completely fails to use the \boxed{} syntax.
+---
 
-Padding Penalty (-0.2): Discourages the model from generating excessive tokens (length > 2000) to farm reasoning steps without reaching a conclusion.
+## 🛠️ Quick Start (Local Prototyping)
 
-🛠️ Quick Start (Local Prototyping)
 The codebase dynamically detects your hardware. For local validation without a GPU, it gracefully falls back to CPU computation for fast plumbing tests.
 
-1. Environment Setup
-Bash
+### 1. Environment Setup
+```bash
 # Clone the repository
 git clone [https://github.com/Neel-K26/nemotron-reasoning-ops.git](https://github.com/Neel-K26/nemotron-reasoning-ops.git)
 cd nemotron-reasoning-ops
@@ -148,13 +149,13 @@ conda activate ml_env
 # Install CPU dependencies (for local testing)
 pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cpu](https://download.pytorch.org/whl/cpu)
 pip install -r requirements.txt
-2. Data Versioning
-Bash
+
+
 # Initialize DVC and pull the latest tracked datasets
 dvc init
 dvc pull
-3. Run the Pipeline
-Bash
+
+
 # Generate a batch of synthetic reasoning data
 python -m src.data.generate_synthetic
 
@@ -163,16 +164,20 @@ python -m src.models.train
 
 # Evaluate the generated LoRA adapter against Kaggle parameters
 python -m src.evaluation.evaluate
-4. Monitor Experiments
-Bash
+
+
 # Launch the MLflow tracking UI
 mlflow ui
-Navigate to http://127.0.0.1:5000 to view hyperparameter logs, adapter artifacts, and accuracy metrics.
 
-🐳 Production Deployment (GCP / NVIDIA Blackwell)
+
+
+---
+
+## 🐳 Production Deployment (GCP / NVIDIA Blackwell)
+
 To deploy the pipeline for heavy workloads on cloud GPU runners, utilize the provided Docker infrastructure to ensure CUDA 12.1 compatibility.
 
-Bash
+```bash
 # Build the production image
 docker build -t nemotron-ops:v1 .
 
@@ -181,21 +186,3 @@ docker run --gpus all -it --rm nemotron-ops:v1 /bin/bash
 
 # Inside the container, execute the full training loop
 python -m src.models.train
-🔒 Automated Submissions via CI/CD
-Do not manually zip or upload adapters. This repository utilizes GitOps for Kaggle submissions.
-
-Train your LoRA adapter locally or in the cloud.
-
-Push your code to the master or main branch.
-
-The GitHub Action will trigger automatically to:
-
-Verify the existence of adapter_config.json.
-
-Parse the JSON to guarantee r <= 32.
-
-Package the verified adapter into a Kaggle-ready submission.zip.
-
-Download the submission.zip artifact directly from the Actions tab in GitHub.
-
-Developed for the 2026 Kaggle NVIDIA Nemotron Model Reasoning Challenge.
